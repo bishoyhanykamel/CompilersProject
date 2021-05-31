@@ -7,6 +7,8 @@ class Scanner:
         self.set_state('START')
         self.tokens = []
         self.state_other = False
+        self.identifiers = list()
+        self.numbers = list()
 
     def set_state(self, state):
         for key in self.STATES:
@@ -95,16 +97,18 @@ class Scanner:
         if token[-1:] == ' ':
             token = token[0:-1]
         if self.is_str(token):
-            if token in self.KEYWORDS:
-                self.tokens.append([token, token.upper()])
+            if token in self.RESERVED_KEYWORDS:
+                self.tokens.append([token, "{}{}".format(token[0].upper(), token[1:])])
+            elif token in self.DATA_TYPES:
+                    self.tokens.append([token, "{}{}".format(token[0].upper(), token[1:])])
             else:
-                self.tokens.append([token, 'IDENTIFIER'])
+                self.tokens.append([token, 'Identifier'])
         elif self.is_num(token):
-            self.tokens.append([token, 'NUMBER'])
+            self.tokens.append([token, 'Number'])
         elif token in self.OPERATORS:
             self.tokens.append([token, self.OPERATORS[token]])
         elif self.is_comment(token):
-            self.tokens.append([token, 'COMMENT'])
+            self.tokens.append([token, 'Comment'])
 
     def is_str(self, token):
         return token.isalpha()
@@ -122,44 +126,113 @@ class Scanner:
     def is_comment(self, token):
         return True if re.match(r'^{.+}$', token) else False
 
-
     def modify_code(self, code):
         tiny_code = code.replace('\n', ' ')
+        tiny_code = "{} a".format(tiny_code)
         return tiny_code
 
     def output(self):
+        self.call_for_errors()
         with open('output.txt', 'w') as f:
-            f.write('{:<12}  {:>12}\n'.format('Type', 'Token'))
-            f.write('{:<12}  {:>12}\n'.format('=====', '====='))
+            f.write('{:<32} {:>32}\n'.format('==================', '=================='))
+            f.write('{:<32}  {:>32}\n'.format('========[TYPE]=======', '========[TOKEN]======='))
+            f.write('{:<32} {:>32}\n'.format('==================', '=================='))
             for token in self.tokens:
-                f.write('{:<12}  {:>12}\n'.format(token[1], token[0]))
+                f.write('{:<40}  {:>40}\n'.format(token[1], token[0]))
 
     def print_output(self):
         with open('output.txt', 'r') as f:
-            for line in f:
-                print(line)
+            return "".join(f.readlines())
+
+    def call_for_errors(self):
+        index = 0
+        found_data_type = False
+        found_identifier = False
+        found_number = False
+        found_comment = False
+        found_symbol = False
+        while index < len(self.tokens):
+            if self.tokens[index][1] == 'Int':
+                print("I found int")
+            elif self.tokens[index][1] == 'Double':
+                print("I found double")
+            elif self.tokens[index][1] == 'Float':
+                print("I found float")
+            elif self.tokens[index][1] == 'Character':
+                print("I found character")
+            elif self.tokens[index][1] == 'String':
+                print("I found string")
+            elif self.tokens[index][1] == 'If':
+                print("I found if")
+            elif self.tokens[index][1] == 'Then':
+                print("I found then")
+            elif self.tokens[index][1] == 'Else':
+                print("I found else")
+            elif self.tokens[index][1] == 'End':
+                print("I found end")
+            elif self.tokens[index][1] == 'Read':
+                print("I found read")
+            elif self.tokens[index][1] == 'Write':
+                print("I found write")
+            elif self.tokens[index][1] == 'Repeat':
+                print("I found repeat")
+            elif self.tokens[index][1] == 'Until':
+                print("I found until")
+            elif self.tokens[index][1] == 'Plus Operator':
+                print("I found plus")
+            elif self.tokens[index][1] == 'Minus Operator':
+                print("I found minus")
+            elif self.tokens[index][1] == 'Multiplication Operator':
+                print("I found times")
+            elif self.tokens[index][1] == 'Division Operator':
+                print("I found div")
+            elif self.tokens[index][1] == 'Semi Colon Operator':
+                print("I found semi colon")
+            elif self.tokens[index][1] == 'Assignment Operator':
+                print("i found assignment")
+            elif self.tokens[index][1] == 'Colon':
+                print("i found colon")
+            elif self.tokens[index][1] == 'Equals Operator':
+                print("I found equals operator")
+            elif self.tokens[index][1] == 'Greater Than Operator':
+                print("I found greater than operator")
+            elif self.tokens[index][1] == 'Less Than Operator':
+                print("I found less than operator")
+            elif self.tokens[index][1] == 'Open bracket':
+                print("I found open bracket")
+            elif self.tokens[index][1] == 'Close bracket':
+                print("I found close bracket")
+            elif self.tokens[index][1] == 'Identifier':
+                print("I found identifier")
+            index += 1
+            pass
+        # note: the last element isnt checked by default
+    pass
 
     STATES = {
         'START': False,
         'IN_COMMENT': False,
         'IN_IDENTIFIER': False,
+        'IN_DATA_TYPE': False,
         'IN_NUMBER': False,
         'IN_ASSIGNMENT': False,
         'DONE': False,
+        'ERROR': False,
         'OTHER': False
     }
-    KEYWORDS = ['else', 'end', 'if', 'repeat', 'then', 'until', 'read', 'write']
+    RESERVED_KEYWORDS = ['else', 'end', 'if', 'repeat', 'then', 'until', 'read', 'write']
+    DATA_TYPES = ['int', 'double', 'float', 'character', 'string']
     OPERATORS = {
-        '+': 'PLUS',
-        '-': 'MINUS',
-        '*': 'MULT',
-        '/': 'DIV_FLOAT',
-        ':': 'COLON',
-        '=': 'EQUALS',
-        ':=': 'ASSIGNMENT',
-        '>': 'GREATER',
-        '<': 'LESS',
-        ';': 'SEMICOLON',
-        '(': 'OPEN_PARENTHESIS',
-        ')': 'CLOSE_PARENTHESIS'
+        '+': 'Plus Operator',
+        '-': 'Minus operator',
+        '*': 'Multiplication Operator',
+        '/': 'Division Operator',
+        ':': 'Colon',
+        '=': 'Equals Operator',
+        ':=': 'Assignment Operator',
+        '>': 'Greater Than Operator',
+        '<': 'Less Than Operator',
+        ';': 'Semi Colon Operator',
+        '(': 'Open bracket',
+        ')': 'Close bracket'
     }
