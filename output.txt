@@ -4,4 +4,13 @@
 Int                                                                            int
 Identifier                                                                       x
 Semi Colon Operator                                                              ;
-ERROR INVALID CHARACTER                                                          @
+If                                                                              if
+Identifier                                                                       x
+Greater Than Operator                                                            >
+Number                                                                           0
+Then                                                                          then
+Comment                                                 {don’t compute if x <= 0 }
+Identifier                                                                    fact
+Assignment Operator                                                             :=
+Semi Colon Operator                                                              ;
+ERROR INVALID CHARACTER                                                          \

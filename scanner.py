@@ -24,7 +24,7 @@ class Scanner:
         found_open_comment = 0
         equal_counts = 0
         for c in input_text:
-            if c in ['!', '@', '#', '$', '%', '^', '&', '"', '.', "'", ".", ",", "~", '`', '_']:
+            if c in ['!', '@', '#', '$', '%', '^', '&', '"', '.', "'", ".", ",", "~", '`', '_', '/', '\\', '|']:
                 self.tokens.append([c, "ERROR INVALID CHARACTER"])
                 return
             if c == '}' and not self.get_state('IN_COMMENT'):
