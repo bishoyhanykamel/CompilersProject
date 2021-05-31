@@ -21,7 +21,15 @@ class Scanner:
     def scan(self, input_code):
         input_text = self.modify_code(input_code)
         token = ''
+        found_open_comment = 0
+        equal_counts = 0
         for c in input_text:
+            if c in ['!', '@', '#', '$', '%', '^', '&', '"', '.', "'", ".", ",", "~", '`', '_']:
+                self.tokens.append([c, "ERROR INVALID CHARACTER"])
+                return
+            if c == '}' and not self.get_state('IN_COMMENT'):
+                self.tokens.append(["Closing bracket with no opening bracket", "COMMENT ERROR FOUND"])
+                return
             if self.get_state('START'):
                 if self.is_symbol(c):
                     self.set_state('DONE')
@@ -29,6 +37,7 @@ class Scanner:
                     self.set_state('START')
                     continue
                 elif c == '{':
+                    found_open_comment += 1
                     self.set_state('IN_COMMENT')
                 elif self.is_num(c):
                     self.set_state('IN_NUMBER')
@@ -36,10 +45,19 @@ class Scanner:
                     self.set_state('IN_IDENTIFIER')
                 elif self.is_col(c):
                     self.set_state('IN_ASSIGNMENT')
+                elif found_open_comment != 0:
+                    self.tokens.append(["Closing bracket with no opening bracket", "COMMENT ERROR FOUND"])
+                    return
 
             elif self.get_state('IN_COMMENT'):
                 if c == '}':
-                    self.set_state('DONE')
+                    found_open_comment -= 1
+                    if found_open_comment == 0:
+                        self.set_state('DONE')
+                    else:
+                        self.set_state('IN_COMMENT')
+                elif c == '{':
+                    found_open_comment += 1
                 else:
                     self.set_state('IN_COMMENT')
 
@@ -48,6 +66,9 @@ class Scanner:
                     self.set_state('IN_NUMBER')
                 elif c == ' ':
                     self.set_state('DONE')
+                elif c.isalpha():
+                    self.tokens.append(["Numbers have letters in them", "INVALID SYNTAX"])
+                    return
                 else:
                     self.set_state('OTHER')
 
@@ -56,13 +77,20 @@ class Scanner:
                     self.set_state('IN_IDENTIFIER')
                 elif c == ' ':
                     self.set_state('DONE')
+                elif c.isdigit():
+                    self.tokens.append(["Identifiers can't have numbers", "INVALID SYNTAX"])
+                    return
                 else:
                     self.set_state('OTHER')
 
             elif self.get_state('IN_ASSIGNMENT'):
                 if c == '=':
-                    self.set_state('DONE')
+                    equal_counts += 1
+
                 else:
+                    if equal_counts >= 2:
+                        self.tokens.append(["Consecutive equal signs", "INVALID OPERATION"])
+                        return
                     self.set_state('OTHER')
 
             if not self.get_state('OTHER'):
@@ -92,6 +120,9 @@ class Scanner:
                 else:
                     token = ''
                 self.set_state('START')
+        if found_open_comment:
+            self.tokens.append(["COMMENT ERROR", "Opening bracket never closed"])
+            return
 
     def classify(self, token):
         if token[-1:] == ' ':
@@ -100,7 +131,7 @@ class Scanner:
             if token in self.RESERVED_KEYWORDS:
                 self.tokens.append([token, "{}{}".format(token[0].upper(), token[1:])])
             elif token in self.DATA_TYPES:
-                    self.tokens.append([token, "{}{}".format(token[0].upper(), token[1:])])
+                self.tokens.append([token, "{}{}".format(token[0].upper(), token[1:])])
             else:
                 self.tokens.append([token, 'Identifier'])
         elif self.is_num(token):
@@ -132,7 +163,6 @@ class Scanner:
         return tiny_code
 
     def output(self):
-        self.call_for_errors()
         with open('output.txt', 'w') as f:
             f.write('{:<32} {:>32}\n'.format('==================', '=================='))
             f.write('{:<32}  {:>32}\n'.format('========[TYPE]=======', '========[TOKEN]======='))
@@ -143,71 +173,6 @@ class Scanner:
     def print_output(self):
         with open('output.txt', 'r') as f:
             return "".join(f.readlines())
-
-    def call_for_errors(self):
-        index = 0
-        found_data_type = False
-        found_identifier = False
-        found_number = False
-        found_comment = False
-        found_symbol = False
-        while index < len(self.tokens):
-            if self.tokens[index][1] == 'Int':
-                print("I found int")
-            elif self.tokens[index][1] == 'Double':
-                print("I found double")
-            elif self.tokens[index][1] == 'Float':
-                print("I found float")
-            elif self.tokens[index][1] == 'Character':
-                print("I found character")
-            elif self.tokens[index][1] == 'String':
-                print("I found string")
-            elif self.tokens[index][1] == 'If':
-                print("I found if")
-            elif self.tokens[index][1] == 'Then':
-                print("I found then")
-            elif self.tokens[index][1] == 'Else':
-                print("I found else")
-            elif self.tokens[index][1] == 'End':
-                print("I found end")
-            elif self.tokens[index][1] == 'Read':
-                print("I found read")
-            elif self.tokens[index][1] == 'Write':
-                print("I found write")
-            elif self.tokens[index][1] == 'Repeat':
-                print("I found repeat")
-            elif self.tokens[index][1] == 'Until':
-                print("I found until")
-            elif self.tokens[index][1] == 'Plus Operator':
-                print("I found plus")
-            elif self.tokens[index][1] == 'Minus Operator':
-                print("I found minus")
-            elif self.tokens[index][1] == 'Multiplication Operator':
-                print("I found times")
-            elif self.tokens[index][1] == 'Division Operator':
-                print("I found div")
-            elif self.tokens[index][1] == 'Semi Colon Operator':
-                print("I found semi colon")
-            elif self.tokens[index][1] == 'Assignment Operator':
-                print("i found assignment")
-            elif self.tokens[index][1] == 'Colon':
-                print("i found colon")
-            elif self.tokens[index][1] == 'Equals Operator':
-                print("I found equals operator")
-            elif self.tokens[index][1] == 'Greater Than Operator':
-                print("I found greater than operator")
-            elif self.tokens[index][1] == 'Less Than Operator':
-                print("I found less than operator")
-            elif self.tokens[index][1] == 'Open bracket':
-                print("I found open bracket")
-            elif self.tokens[index][1] == 'Close bracket':
-                print("I found close bracket")
-            elif self.tokens[index][1] == 'Identifier':
-                print("I found identifier")
-            index += 1
-            pass
-        # note: the last element isnt checked by default
-    pass
 
     STATES = {
         'START': False,
@@ -220,6 +185,7 @@ class Scanner:
         'ERROR': False,
         'OTHER': False
     }
+
     RESERVED_KEYWORDS = ['else', 'end', 'if', 'repeat', 'then', 'until', 'read', 'write']
     DATA_TYPES = ['int', 'double', 'float', 'character', 'string']
     OPERATORS = {

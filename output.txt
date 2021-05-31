@@ -4,33 +4,4 @@
 Int                                                                            int
 Identifier                                                                       x
 Semi Colon Operator                                                              ;
-If                                                                              if
-Identifier                                                                       x
-Greater Than Operator                                                            >
-Number                                                                           0
-Then                                                                          then
-Comment                                                 {don’t compute if x <= 0 }
-Identifier                                                                    fact
-Assignment Operator                                                             :=
-Number                                                                           1
-Semi Colon Operator                                                              ;
-Repeat                                                                      repeat
-Identifier                                                                    fact
-Assignment Operator                                                             :=
-Identifier                                                                    fact
-Multiplication Operator                                                          *
-Identifier                                                                       x
-Semi Colon Operator                                                              ;
-Identifier                                                                       x
-Assignment Operator                                                             :=
-Identifier                                                                       x
-Semi Colon Operator                                                              ;
-Until                                                                        until
-Identifier                                                                       x
-Equals Operator                                                                  =
-Number                                                                           0
-Write                                                                        write
-Identifier                                                                    fact
-Semi Colon Operator                                                              ;
-End                                                                            end
-Identifier                                                                      xa
+ERROR INVALID CHARACTER                                                          @
