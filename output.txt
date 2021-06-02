@@ -10,6 +10,11 @@ Greater Than Operator                                                           
 Number                                                                           0
 Then                                                                          then
 Comment                                                 {don’t compute if x <= 0 }
+Open bracket                                                                     (
+Open bracket                                                                     (
+Open bracket                                                                     (
+Close bracket                                                                    )
+Close bracket                                                                    )
 Identifier                                                                    fact
 Colon                                                                            :
 Equals Operator                                                                  =
@@ -35,3 +40,4 @@ Write                                                                        wri
 Identifier                                                                    fact
 Semi Colon Operator                                                              ;
 End                                                                            end
+BRACKET ERROR                                             Extra OPEN BRACKET found

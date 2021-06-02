@@ -57,7 +57,7 @@ class Ui_compilerQDialog(object):
         self.output_textbrowser = QtWidgets.QTextBrowser(self.gridLayoutWidget)
         self.output_textbrowser.setStyleSheet("color: rgb(57, 57, 57);")
         self.output_textbrowser.setAcceptRichText(True)
-        self.output_textbrowser.setSource(QtCore.QUrl("http://output.txt"))
+        self.output_textbrowser.setSource(QtCore.QUrl("output.txt"))
         self.output_textbrowser.setObjectName("output_textbrowser")
         self.gridLayout.addWidget(self.output_textbrowser, 0, 0, 1, 1)
         self.compile_button.clicked.connect(self.show_compilation)

@@ -23,25 +23,34 @@ class Scanner:
         token = ''
         found_open_comment = 0
         equals_count = 0
+        brackets_found = 0
         for c in input_text:
-            if c in ['!', '@', '#', '$', '%', '^', '&', '"', '.', "'", ".", ",", "~", '`', '_', '/', '\\', '|']:
-                self.tokens.append([c, "ERROR INVALID CHARACTER"])
-                return
-            if c == '=' and not self.get_state('IN_COMMENT'):
-                equals_count += 1
-            else:
-                if c != ' ':
-                    equals_count -= 1
-                    if equals_count <= -1:
-                        equals_count = 0
+            if not self.get_state('IN_COMMENT'):
+                if c in ['!', '@', '#', '$', '%', '^', '&', '"', '.', "'", ".", ",", "~", '`', '_', '/', '\\', '|', '’']:
+                    self.tokens.append([c, "ERROR INVALID CHARACTER"])
+                    return
+                if c == '=':
+                    equals_count += 1
+                else:
+                    if c != ' ':
+                        equals_count -= 1
+                        if equals_count <= -1:
+                            equals_count = 0
 
-            if equals_count >= 2:
-                self.tokens.append(["Consecutive equal signs", "INVALID OPERATION"])
-                return
+                    if equals_count >= 2:
+                        self.tokens.append(["Consecutive EQUAL SIGNS", "INVALID OPERATION"])
+                        return
 
-            if c == '}' and not self.get_state('IN_COMMENT'):
-                self.tokens.append(["Closing bracket with no opening bracket", "COMMENT ERROR FOUND"])
-                return
+                if c == '}':
+                    self.tokens.append(["Extra CLOSING BRACKET found", "COMMENT ERROR FOUND"])
+                    return
+                if c == '(':
+                    brackets_found += 1
+                elif c == ')':
+                    if brackets_found == 0:
+                        self.tokens.append(['CLOSE BRACKET has no Open Bracket', 'BRACKET ERROR'])
+                        return
+                    brackets_found -= 1
             if self.get_state('START'):
                 if self.is_symbol(c):
                     self.set_state('DONE')
@@ -58,7 +67,7 @@ class Scanner:
                 elif self.is_col(c):
                     self.set_state('IN_ASSIGNMENT')
                 elif found_open_comment != 0:
-                    self.tokens.append(["Closing bracket with no opening bracket", "COMMENT ERROR FOUND"])
+                    self.tokens.append(["Extra CLOSING BRACKET found", "COMMENT ERROR FOUND"])
                     return
 
             elif self.get_state('IN_COMMENT'):
@@ -79,7 +88,7 @@ class Scanner:
                 elif c == ' ':
                     self.set_state('DONE')
                 elif c.isalpha():
-                    self.tokens.append(["Numbers have letters in them", "INVALID SYNTAX"])
+                    self.tokens.append(["LETTERS inside NUMBERS", "INVALID SYNTAX"])
                     return
                 else:
                     self.set_state('OTHER')
@@ -90,7 +99,7 @@ class Scanner:
                 elif c == ' ':
                     self.set_state('DONE')
                 elif c.isdigit():
-                    self.tokens.append(["Identifiers can't have numbers", "INVALID SYNTAX"])
+                    self.tokens.append(["NUMBERS inside IDENTIFIERS", "INVALID SYNTAX"])
                     return
                 else:
                     self.set_state('OTHER')
@@ -126,8 +135,12 @@ class Scanner:
                     token = ''
                 self.set_state('START')
         if found_open_comment:
-            self.tokens.append(["COMMENT ERROR", "Opening bracket never closed"])
+            self.tokens.append(["Extra OPEN COMMENT Operator", "COMMENT ERROR"])
             return
+        if brackets_found > 0:
+            self.tokens.append(['Extra OPEN BRACKET found', 'BRACKET ERROR'])
+        elif brackets_found < 0:
+            self.tokens.append(['Extra CLOSE BRACKET found', 'BRACKET ERROR'])
 
 
     def classify(self, token):
