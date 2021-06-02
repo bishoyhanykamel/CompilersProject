@@ -22,11 +22,23 @@ class Scanner:
         input_text = self.modify_code(input_code)
         token = ''
         found_open_comment = 0
-        equal_counts = 0
+        equals_count = 0
         for c in input_text:
             if c in ['!', '@', '#', '$', '%', '^', '&', '"', '.', "'", ".", ",", "~", '`', '_', '/', '\\', '|']:
                 self.tokens.append([c, "ERROR INVALID CHARACTER"])
                 return
+            if c == '=' and not self.get_state('IN_COMMENT'):
+                equals_count += 1
+            else:
+                if c != ' ':
+                    equals_count -= 1
+                    if equals_count <= -1:
+                        equals_count = 0
+
+            if equals_count >= 2:
+                self.tokens.append(["Consecutive equal signs", "INVALID OPERATION"])
+                return
+
             if c == '}' and not self.get_state('IN_COMMENT'):
                 self.tokens.append(["Closing bracket with no opening bracket", "COMMENT ERROR FOUND"])
                 return
@@ -84,13 +96,6 @@ class Scanner:
                     self.set_state('OTHER')
 
             elif self.get_state('IN_ASSIGNMENT'):
-                if c == '=':
-                    equal_counts += 1
-
-                else:
-                    if equal_counts >= 2:
-                        self.tokens.append(["Consecutive equal signs", "INVALID OPERATION"])
-                        return
                     self.set_state('OTHER')
 
             if not self.get_state('OTHER'):
@@ -123,6 +128,7 @@ class Scanner:
         if found_open_comment:
             self.tokens.append(["COMMENT ERROR", "Opening bracket never closed"])
             return
+
 
     def classify(self, token):
         if token[-1:] == ' ':

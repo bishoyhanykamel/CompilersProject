@@ -11,6 +11,27 @@ Number                                                                          
 Then                                                                          then
 Comment                                                 {don’t compute if x <= 0 }
 Identifier                                                                    fact
-Assignment Operator                                                             :=
+Colon                                                                            :
+Equals Operator                                                                  =
+Number                                                                           1
 Semi Colon Operator                                                              ;
-ERROR INVALID CHARACTER                                                          \
+Repeat                                                                      repeat
+Identifier                                                                    fact
+Assignment Operator                                                             :=
+Identifier                                                                    fact
+Multiplication Operator                                                          *
+Identifier                                                                       x
+Semi Colon Operator                                                              ;
+Identifier                                                                       x
+Colon                                                                            :
+Equals Operator                                                                  =
+Identifier                                                                       x
+Semi Colon Operator                                                              ;
+Until                                                                        until
+Identifier                                                                       x
+Equals Operator                                                                  =
+Number                                                                           0
+Write                                                                        write
+Identifier                                                                    fact
+Semi Colon Operator                                                              ;
+End                                                                            end
